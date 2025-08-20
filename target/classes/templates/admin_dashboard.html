@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pahana Edu Admin Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa;
+    }
+    .sidebar {
+        height: 100vh;
+        background-color: #212529;
+        color: white;
+        padding-top: 20px;
+    }
+    .sidebar a {
+        display: block;
+        padding: 12px;
+        color: white;
+        text-decoration: none;
+        margin: 5px 0;
+    }
+    .sidebar a:hover {
+        background-color: #343a40;
+        border-radius: 5px;
+    }
+    .content {
+        padding: 20px;
+    }
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+</style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar">
+            <h4 class="text-center">📚 Pahana Edu</h4>
+            <a href="/customers/add">➕ Add New Customer</a>
+            <a href="/customers/manage">✏ Edit Customer Info</a>
+            <a href="/items/manage">📦 Manage Items</a>
+            <a href="/accounts">📄 Display Account Details</a>
+            <a href="/billing/calculate">💰 Calculate & Print Bill</a>
+            <a href="/help">❓ Help</a>
+            <a href="/logout">🚪 Exit / Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 content">
+            <h2>Welcome, Admin!</h2>
+            <p class="text-muted">Manage all Pahana Edu operations from this dashboard.</p>
+
+            <!-- Stats Section -->
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="card p-3 text-center">
+                        <h5>Total Customers</h5>
+                        <h2 id="totalCustomers">0</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3 text-center">
+                        <h5>Total Items</h5>
+                        <h2 id="totalItems">0</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3 text-center">
+                        <h5>Total Bills Generated</h5>
+                        <h2 id="totalBills">0</h2>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card p-3 text-center">
+                        <h5>Total Revenue</h5>
+                        <h2 id="totalRevenue">$0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-5">
+                <div class="col-md-4">
+                    <a href="/customers/add" class="btn btn-primary w-100 p-3">➕ Add Customer</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/items/manage" class="btn btn-success w-100 p-3">📦 Manage Items</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/billing/calculate" class="btn btn-warning w-100 p-3">💰 Generate Bill</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS for API calls -->
+<script>
+const API_URL = 'http://localhost:8080/api';
+
+// Add Customer
+async function addCustomer(username, email) {
+    const res = await fetch(`${API_URL}/customers/add`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({username, email})
+    });
+    const data = await res.json();
+    alert('✅ Customer added: ' + data.username);
+    loadStats();
+}
+
+// Add Item
+async function addItem(name, price) {
+    const res = await fetch(`${API_URL}/items/add`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({name, price})
+    });
+    const data = await res.json();
+    alert('✅ Item added: ' + data.name);
+    loadStats();
+}
+
+// Generate Bill
+async function generateBill(customerId, totalAmount) {
+    const res = await fetch(`${API_URL}/bills/add`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({customerId, totalAmount})
+    });
+    const data = await res.json();
+    alert('💰 Bill generated: $' + data.totalAmount);
+    loadStats();
+}
+
+// Quick Action Buttons
+document.querySelector('a[href="/customers/add"]').onclick = () => {
+    const username = prompt("Customer Username:");
+    const email = prompt("Customer Email:");
+    if(username && email) addCustomer(username, email);
+    return false;
+};
+
+document.querySelector('a[href="/items/manage"]').onclick = () => {
+    const name = prompt("Item Name:");
+    const price = parseFloat(prompt("Item Price:"));
+    if(name && !isNaN(price)) addItem(name, price);
+    return false;
+};
+
+document.querySelector('a[href="/billing/calculate"]').onclick = () => {
+    const customerId = prompt("Customer ID:");
+    const totalAmount = parseFloat(prompt("Total Amount:"));
+    if(customerId && !isNaN(totalAmount)) generateBill(customerId, totalAmount);
+    return false;
+};
+
+// Load Stats
+async function loadStats() {
+    const customers = await fetch(`${API_URL}/customers/all`).then(res=>res.json());
+    const items = await fetch(`${API_URL}/items/all`).then(res=>res.json());
+    const bills = await fetch(`${API_URL}/bills/all`).then(res=>res.json());
+
+    document.getElementById('totalCustomers').innerText = customers.length;
+    document.getElementById('totalItems').innerText = items.length;
+    document.getElementById('totalBills').innerText = bills.length;
+
+    const totalRevenue = bills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+    document.getElementById('totalRevenue').innerText = '$' + totalRevenue;
+}
+
+// Initial Stats load
+loadStats();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
