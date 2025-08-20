@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pahana Edu - Full Color Dashboard</title>
+
+  <!-- Bootstrap CSS & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    /* Reset */
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: linear-gradient(135deg, #f3e7e9, #e3eeff); color: #222; min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Top Bar */
+    .top-bar { background: #0d6efd; color: white; font-size: 14px; padding: 8px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .top-bar a { color: #d0e2ff; text-decoration: none; margin-left: 10px; transition: color 0.3s ease; }
+    .top-bar a:hover { color: white; text-decoration: underline; }
+    .top-bar i { margin-right: 5px; }
+
+    /* Header */
+    header { display: flex; align-items: center; justify-content: space-between; padding: 15px 30px; background: white; box-shadow: 0 2px 6px rgb(0 0 0 / 0.1); position: sticky; top: 0; z-index: 100; }
+    header img { height: 60px; cursor: pointer; border-radius: 10px; border: 2px solid #0d6efd; }
+    .search-box { flex: 1; margin: 0 20px; position: relative; }
+    .search-box input { width: 100%; padding: 10px 45px 10px 15px; border: 2px solid #0d6efd; border-radius: 50px; font-size: 16px; outline: none; transition: box-shadow 0.3s ease; }
+    .search-box input:focus { box-shadow: 0 0 8px #0d6efd; }
+    .search-box button { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #0d6efd; font-size: 22px; cursor: pointer; }
+    .header-icons a { font-size: 22px; margin-left: 25px; position: relative; text-decoration: none; }
+    .header-icons a span { position: absolute; top: -8px; right: -12px; background: #dc3545; color: white; font-size: 12px; padding: 2px 6px; border-radius: 50%; font-weight: 600; }
+
+    /* Navigation Menu */
+    nav.nav-bar { background: #0d6efd; padding: 10px 0; box-shadow: 0 3px 5px rgba(0,0,0,0.1); }
+    nav.nav-bar ul { display: flex; justify-content: center; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; gap: 18px; }
+    nav.nav-bar ul li a { color: white; font-weight: 600; font-size: 15px; padding: 8px 20px; border-radius: 50px; text-decoration: none; transition: background 0.3s ease; white-space: nowrap; }
+    nav.nav-bar ul li a:hover, nav.nav-bar ul li a.active { background: white; color: #0d6efd; box-shadow: 0 0 10px #0d6efdaa; }
+
+    /* Banner */
+    .banner { position: relative; width: 100%; height: 420px; overflow: hidden; margin-top: 10px; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+    .banner img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; border-radius: 15px; }
+    .banner:hover img { transform: scale(1.05); }
+    .banner-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: white; text-shadow: 1px 1px 10px rgba(0,0,0,0.7); }
+    .banner-text h1 { font-size: 3.5rem; margin-bottom: 0.4rem; font-weight: 900; background: rgba(13, 110, 253, 0.85); padding: 15px 30px; border-radius: 12px; }
+    .banner-text h2 { font-size: 2rem; font-weight: 700; background: rgba(13, 110, 253, 0.85); padding: 10px 25px; border-radius: 10px; }
+
+    /* Featured Section */
+    .section-title { font-size: 1.9rem; font-weight: 700; margin: 40px 30px 20px; color: #0d6efd; text-align: center; text-transform: uppercase; letter-spacing: 1.4px; }
+    .scroll-container { display: flex; overflow-x: auto; gap: 18px; padding: 0 30px 30px; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: #0d6efd #e0e0e0; }
+    .scroll-container::-webkit-scrollbar { height: 8px; }
+    .scroll-container::-webkit-scrollbar-track { background: #e0e0e0; border-radius: 10px; }
+    .scroll-container::-webkit-scrollbar-thumb { background-color: #0d6efd; border-radius: 10px; }
+    .card-book { flex: 0 0 220px; background: white; border-radius: 15px; box-shadow: 0 3px 8px rgba(0,0,0,0.12); transition: transform 0.3s ease; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; }
+    .card-book:hover { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+    .card-book img { width: 100%; height: 280px; object-fit: cover; border-bottom: 2px solid #0d6efd; }
+    .card-book .card-body { padding: 15px 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-book .card-title { font-weight: 700; font-size: 1.1rem; color: #0d6efd; margin-bottom: 8px; text-align: center; }
+    .card-book .card-subtitle { font-size: 0.9rem; color: #444; text-align: center; }
+
+    .auth-btn { background: #0d6efd; color: white; font-weight: 600; border: none; border-radius: 50px; padding: 8px 25px; cursor: pointer; font-size: 16px; transition: background 0.3s ease; margin-left: 15px; }
+    .auth-btn:hover { background: #084dbc; }
+
+    footer { background: #0d6efd; color: white; margin-top: auto; }
+    .footer-newsletter { padding: 40px 30px 30px; max-width: 1200px; margin: 0 auto; text-align: center; }
+    .footer-newsletter h3 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 1.2px; }
+    .footer-newsletter p { font-size: 1.1rem; margin-bottom: 25px; max-width: 650px; margin-left: auto; margin-right: auto; }
+    .footer-newsletter form { display: flex; justify-content: center; max-width: 450px; margin: 0 auto; }
+    .footer-newsletter input[type="email"] { padding: 12px 20px; font-size: 16px; border: none; border-radius: 50px 0 0 50px; outline: none; flex-grow: 1; }
+    .footer-newsletter button { background: #ffc107; border: none; color: #0d6efd; font-weight: 700; font-size: 16px; padding: 12px 25px; border-radius: 0 50px 50px 0; cursor: pointer; transition: background 0.3s ease; }
+    .footer-newsletter button:hover { background: #e0a800; }
+
+    .footer-main { display: flex; flex-wrap: wrap; justify-content: space-around; padding: 40px 30px 60px; max-width: 1200px; margin: 0 auto; gap: 35px; }
+    .footer-col { flex: 1 1 180px; min-width: 180px; color: white; }
+    .footer-col h4 { font-weight: 700; font-size: 1.3rem; margin-bottom: 20px; border-bottom: 2px solid #ffc107; padding-bottom: 8px; max-width: fit-content; }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a { color: white; text-decoration: none; transition: color 0.3s ease; }
+    .footer-col ul li a:hover { color: #ffc107; text-decoration: underline; }
+    .footer-contact p { margin-bottom: 10px; line-height: 1.4; }
+    .footer-social { margin-top: 15px; display: flex; gap: 15px; }
+    .footer-social a { font-size: 22px; color: white; transition: color 0.3s ease; text-decoration: none; }
+    .footer-social a:hover { color: #ffc107; }
+    .footer-bottom { background: #084dbc; text-align: center; padding: 15px 30px; font-size: 14px; color: #ddd; font-weight: 500; }
+
+    @media (max-width: 768px) {
+      header { flex-wrap: wrap; }
+      .search-box { order: 3; width: 100%; margin: 15px 0; }
+      .header-icons { order: 2; width: 100%; text-align: right; }
+      nav.nav-bar ul { flex-wrap: wrap; gap: 12px; }
+      .footer-main { flex-direction: column; gap: 30px; padding-bottom: 40px; }
+      .footer-col { min-width: 100%; }
+      .footer-newsletter form { flex-direction: column; }
+      .footer-newsletter input[type="email"] { border-radius: 50px; margin-bottom: 10px; }
+      .footer-newsletter button { border-radius: 50px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div>
+      <i class="bi bi-telephone-fill" style="color:#ffc107;"></i>
+      Call us for Web Orders: <span style="font-weight:700;">+94 711304050 / 0112820820</span>
+    </div>
+    <div>
+      <i class="bi bi-envelope-fill" style="color:#17a2b8;"></i>
+      Email: <a href="mailto:webadmin@sarasavi.lk">webadmin@sarasavi.lk</a>
+      <a href="Customer_login.html" class="auth-btn">Sign Up / Login</a>
+      <span style="margin-left: 15px;">LKR</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div style="font-size: 40px; color: #0d6efd; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+      <i class="bi bi-book-half"></i> Pahana Edu
+    </div>
+    <div class="search-box">
+      <input type="text" placeholder="Search for books, authors..." />
+      <button aria-label="Search"><i class="bi bi-search"></i></button>
+    </div>
+    <div class="header-icons">
+      <a href="#" title="Wishlist"><i class="bi bi-heart-fill" style="color:#ff3366;"></i><span>0</span></a>
+      <a href="#" title="Cart"><i class="bi bi-cart-fill" style="color:#28a745;"></i><span>0</span></a>
+    </div>
+  </header>
+
+  <!-- Navigation Menu -->
+  <nav class="nav-bar">
+    <ul>
+      <li><a href="#" class="active">School List</a></li>
+      <li><a href="#">Pahana Publications</a></li>
+      <li><a href="#">Children</a></li>
+      <li><a href="#">International Books</a></li>
+      <li><a href="#">Request a Book</a></li>
+      <li><a href="#">E-Books</a></li>
+      <li><a href="#">Branch Network</a></li>
+    </ul>
+  </nav>
+
+  <!-- Banner -->
+  <section class="banner">
+    <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?fit=crop&w=1500&h=450" alt="Book Banner" />
+    <div class="banner-text">
+      <h1>Now Available</h1>
+      <h2>KATA KATHĀ - Savin Edirisinghe</h2>
+    </div>
+  </section>
+
+  <!-- Featured Scrollable Sections with 4 books each -->
+  <!-- Latest Arrivals -->
+  <section>
+    <h2 class="section-title">Explore Our Latest Arrivals</h2>
+    <div class="scroll-container">
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?fit=crop&w=300&h=400" alt="KATA KATHĀ" />
+        <div class="card-body">
+          <div class="card-title">KATA KATHĀ</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1200</span><br>
+            <span>Discount: 15%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?fit=crop&w=300&h=400" alt="Savindu Kathā" />
+        <div class="card-body">
+          <div class="card-title">Savindu Kathā</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 950</span><br>
+            <span>Discount: 10%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?fit=crop&w=300&h=400" alt="Sinhala Stories" />
+        <div class="card-body">
+          <div class="card-title">Sinhala Stories</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1500</span><br>
+            <span>Discount: 20%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524578271613-0c446c1600f0?fit=crop&w=300&h=400" alt="Children Tales" />
+        <div class="card-body">
+          <div class="card-title">Children Tales</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 800</span><br>
+            <span>Discount: 5%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Fictions -->
+  <section>
+    <h2 class="section-title">Best Fictions</h2>
+    <div class="scroll-container">
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?fit=crop&w=300&h=400" alt="Fiction 1" />
+        <div class="card-body">
+          <div class="card-title">Fictional Story 1</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1100</span><br>
+            <span>Discount: 12%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?fit=crop&w=300&h=400" alt="Fiction 2" />
+        <div class="card-body">
+          <div class="card-title">Fictional Story 2</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1250</span><br>
+            <span>Discount: 18%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?fit=crop&w=300&h=400" alt="Fiction 3" />
+        <div class="card-body">
+          <div class="card-title">Fictional Story 3</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 980</span><br>
+            <span>Discount: 10%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524578271613-0c446c1600f0?fit=crop&w=300&h=400" alt="Fiction 4" />
+        <div class="card-body">
+          <div class="card-title">Fictional Story 4</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1050</span><br>
+            <span>Discount: 8%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Children Books -->
+  <section>
+    <h2 class="section-title">Best Children Books</h2>
+    <div class="scroll-container">
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?fit=crop&w=300&h=400" alt="Children 1" />
+        <div class="card-body">
+          <div class="card-title">Magic World</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 800</span><br>
+            <span>Discount: 5%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?fit=crop&w=300&h=400" alt="Children 2" />
+        <div class="card-body">
+          <div class="card-title">Adventure Tales</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 950</span><br>
+            <span>Discount: 12%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?fit=crop&w=300&h=400" alt="Children 3" />
+        <div class="card-body">
+          <div class="card-title">Fairy Land</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 700</span><br>
+            <span>Discount: 10%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524578271613-0c446c1600f0?fit=crop&w=300&h=400" alt="Children 4" />
+        <div class="card-body">
+          <div class="card-title">Animal Kingdom</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 850</span><br>
+            <span>Discount: 7%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sinhala Novels -->
+  <section>
+    <h2 class="section-title">Sinhala Novels</h2>
+    <div class="scroll-container">
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?fit=crop&w=300&h=400" alt="Sinhala 1" />
+        <div class="card-body">
+          <div class="card-title">Sinhala Novel 1</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1300</span><br>
+            <span>Discount: 15%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?fit=crop&w=300&h=400" alt="Sinhala 2" />
+        <div class="card-body">
+          <div class="card-title">Sinhala Novel 2</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1450</span><br>
+            <span>Discount: 18%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?fit=crop&w=300&h=400" alt="Sinhala 3" />
+        <div class="card-body">
+          <div class="card-title">Sinhala Novel 3</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1200</span><br>
+            <span>Discount: 12%</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-book">
+        <img src="https://images.unsplash.com/photo-1524578271613-0c446c1600f0?fit=crop&w=300&h=400" alt="Sinhala 4" />
+        <div class="card-body">
+          <div class="card-title">Sinhala Novel 4</div>
+          <div class="card-subtitle">
+            <span>Price: LKR 1100</span><br>
+            <span>Discount: 10%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-newsletter">
+      <h3>Subscribe to Our Newsletter</h3>
+      <p>Get updates about new books, offers, and exclusive deals directly to your inbox.</p>
+      <form>
+        <input type="email" placeholder="Enter your email" />
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+    <div class="footer-main">
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Customer Service</h4>
+        <ul>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Shipping</a></li>
+          <li><a href="#">Order Tracking</a></li>
+        </ul>
+      </div>
+      <div class="footer-col footer-contact">
+        <h4>Contact Us</h4>
+        <p>+94 711304050 / 0112820820</p>
+        <p>Email: webadmin@sarasavi.lk</p>
+        <div class="footer-social">
+          <a href="#"><i class="bi bi-facebook"></i></a>
+          <a href="#"><i class="bi bi-twitter"></i></a>
+          <a href="#"><i class="bi bi-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 Pahana Edu. All Rights Reserved.
+    </div>
+  </footer>
+
+</body>
+</html>

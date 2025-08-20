@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pahana Edu - Manage Accounts</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    body { padding: 20px; }
+    input { margin-bottom: 10px; }
+    button { margin-top: 10px; }
+    #message { margin-bottom: 15px; }
+    input.table-input { width: 100%; }
+</style>
+</head>
+<body class="container">
+
+<h2>Customer Account Details</h2>
+
+<!-- Message Box -->
+<div id="message"></div>
+
+<!-- Add Account Form -->
+<form id="accountForm" class="mb-4">
+    <div class="row g-2">
+        <div class="col">
+            <input type="text" id="accountNumber" class="form-control" placeholder="Account Number" required>
+        </div>
+        <div class="col">
+            <input type="text" id="name" class="form-control" placeholder="Customer Name" required>
+        </div>
+        <div class="col">
+            <input type="text" id="address" class="form-control" placeholder="Address" required>
+        </div>
+        <div class="col">
+            <input type="text" id="telephoneNumber" class="form-control" placeholder="Telephone Number" required>
+        </div>
+        <div class="col">
+            <input type="number" id="unitsConsumed" class="form-control" placeholder="Units Consumed" required>
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-primary">Add Account</button>
+        </div>
+    </div>
+</form>
+
+<!-- Accounts Table -->
+<table class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th>Account Number</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Telephone</th>
+            <th>Units Consumed</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="accountTable"></tbody>
+</table>
+
+<script>
+const baseURL = "http://localhost:8080/api/accounts"; // backend URL
+const messageDiv = document.getElementById("message");
+
+// Show messages
+function showMessage(msg, type="success") {
+    messageDiv.innerHTML = `<div class="alert alert-${type}" role="alert">${msg}</div>`;
+    setTimeout(() => messageDiv.innerHTML = "", 3000);
+}
+
+// Add account
+document.getElementById("accountForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const account = {
+        accountNumber: document.getElementById("accountNumber").value,
+        name: document.getElementById("name").value,
+        address: document.getElementById("address").value,
+        telephoneNumber: document.getElementById("telephoneNumber").value,
+        unitsConsumed: parseInt(document.getElementById("unitsConsumed").value)
+    };
+
+    try {
+        const res = await fetch(baseURL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(account)
+        });
+        if (!res.ok) throw new Error("Failed to add account");
+
+        document.getElementById("accountForm").reset();
+        showMessage("✅ Account added successfully!");
+        loadAccounts();
+    } catch (error) {
+        showMessage("❌ " + error.message, "danger");
+        console.error(error);
+    }
+});
+
+// Load accounts
+async function loadAccounts() {
+    try {
+        const res = await fetch(baseURL);
+        if (!res.ok) throw new Error("Failed to fetch accounts");
+
+        const accounts = await res.json();
+        const table = document.getElementById("accountTable");
+        table.innerHTML = "";
+
+        accounts.forEach(acc => {
+            const row = document.createElement("tr");
+            row.dataset.id = acc.id;
+            row.innerHTML = `
+                <td class="accountNumber">${acc.accountNumber}</td>
+                <td class="name">${acc.name}</td>
+                <td class="address">${acc.address}</td>
+                <td class="telephoneNumber">${acc.telephoneNumber}</td>
+                <td class="unitsConsumed">${acc.unitsConsumed}</td>
+                <td class="actions">
+                    <button class="btn btn-warning btn-sm edit-btn">Edit</button>
+                    <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                </td>
+            `;
+            table.appendChild(row);
+        });
+        attachRowEvents();
+    } catch (error) {
+        showMessage("❌ " + error.message, "danger");
+        console.error(error);
+    }
+}
+
+// Delete account
+async function deleteAccount(id) {
+    if (!confirm("Are you sure you want to delete this account?")) return;
+    try {
+        const res = await fetch(`${baseURL}/${id}`, { method: "DELETE" });
+        if (!res.ok) throw new Error("Failed to delete account");
+        showMessage("✅ Account deleted successfully!");
+        loadAccounts();
+    } catch (error) {
+        showMessage("❌ " + error.message, "danger");
+        console.error(error);
+    }
+}
+
+// Attach edit/delete events
+function attachRowEvents() {
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.onclick = async function() {
+            const tr = this.closest('tr');
+            const id = tr.dataset.id;
+
+            if(this.textContent === 'Edit') {
+                // Make table cells editable
+                tr.querySelector('.accountNumber').innerHTML = `<input type="text" class="table-input" value="${tr.querySelector('.accountNumber').textContent}">`;
+                tr.querySelector('.name').innerHTML = `<input type="text" class="table-input" value="${tr.querySelector('.name').textContent}">`;
+                tr.querySelector('.address').innerHTML = `<input type="text" class="table-input" value="${tr.querySelector('.address').textContent}">`;
+                tr.querySelector('.telephoneNumber').innerHTML = `<input type="text" class="table-input" value="${tr.querySelector('.telephoneNumber').textContent}">`;
+                tr.querySelector('.unitsConsumed').innerHTML = `<input type="number" class="table-input" value="${tr.querySelector('.unitsConsumed').textContent}">`;
+
+                this.textContent = 'Save';
+                this.classList.replace('btn-warning', 'btn-success');
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn btn-secondary btn-sm ms-1 cancel-btn';
+                cancelBtn.textContent = 'Cancel';
+                tr.querySelector('.actions').appendChild(cancelBtn);
+
+                cancelBtn.onclick = () => loadAccounts();
+
+            } else if(this.textContent === 'Save') {
+                // Get updated values
+                const updatedAccount = {
+                    accountNumber: tr.querySelector('.accountNumber input').value,
+                    name: tr.querySelector('.name input').value,
+                    address: tr.querySelector('.address input').value,
+                    telephoneNumber: tr.querySelector('.telephoneNumber input').value,
+                    unitsConsumed: parseInt(tr.querySelector('.unitsConsumed input').value)
+                };
+                try {
+                    const res = await fetch(`${baseURL}/${id}`, {
+                        method: 'PUT',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(updatedAccount)
+                    });
+                    if (!res.ok) throw new Error("Failed to update account");
+                    showMessage("✅ Account updated successfully!", "info");
+                    loadAccounts();
+                } catch (error) {
+                    showMessage("❌ " + error.message, "danger");
+                    console.error(error);
+                }
+            }
+        };
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = function() {
+            const id = this.closest('tr').dataset.id;
+            deleteAccount(id);
+        };
+    });
+}
+
+window.onload = loadAccounts;
+</script>
+
+</body>
+</html>
